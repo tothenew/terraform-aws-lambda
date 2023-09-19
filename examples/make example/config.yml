@@ -1,0 +1,26 @@
+common:
+  vpn_cidr: "10.1.0.0/16"
+
+workspaces:
+  nonprod-us-east-1-default:
+    aws:
+      account_id: 123456789
+      region: us-east-1
+    account_name: nonprod
+    project_name: test
+    project_name_prefix: test
+    role_name: lambda_test
+    lambda_name: test
+    s3_bucket: ""
+    s3_key: ""
+    security_group_id: "sg-054377c44e39efc2b"
+    subnet_id: "subnet-0d54d4e103d8c08c0"
+    handler: "index.test"
+    runtime: "python3.8"
+    cw_logs_retention: 7
+    image_uri: "xxxxxxxxxxx.dkr.ecr.us-east-1.amazonaws.com/testmyrepo:latest"
+    file_system_uri: "arn:aws:elasticfilesystem:us-east-1:xxxxxxxxxxx:access-point/fsap-0c213fe162aee0818"
+    sns_topic_arn: "arn:aws:sns:us-east-1:xxxxxxxxxxx:test"
+    aws_sns_topic_subscription: "test"
+    sqs_event_source_arn: "arn:aws:sqs:us-east-1:xxxxxxxxxxx:test"
+
