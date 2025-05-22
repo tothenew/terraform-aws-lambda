@@ -1,52 +1,58 @@
-# terraform-aws-lambda
+# Terraform AWS Lambda Module Suite
 
-[![Lint Status](https://github.com/tothenew/terraform-aws-lambda/workflows/Lint/badge.svg)](https://github.com/tothenew/terraform-aws-lambda/actions)
-[![LICENSE](https://img.shields.io/github/license/tothenew/terraform-aws-lambda)](https://github.com/tothenew/terraform-aws-lambda/blob/master/LICENSE)
+## Introduction
 
-This is a lambda to use for baseline. The default actions will provide updates for section bitween Requirements and Outputs.
+This Terraform configuration deploys AWS Lambda functions along with necessary IAM roles, event triggers, Lambda layers, and CloudWatch alarms using modular components. It simplifies managing serverless infrastructure on AWS.
 
-The following content needed to be created and managed:
- - Introduction
-     - Explaination of module 
-     - Intended users
- - Resource created and managed by this module
- - Example Usages
+---
 
-<!-- BEGIN_TF_DOCS -->
-## Requirements
+## Explanation of Module
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.72 |
-| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 2.10 |
-| <a name="requirement_tls"></a> [tls](#requirement\_tls) | >= 3.0 |
+This setup splits Lambda deployment into focused modules:
 
-## Providers
+- IAM Role creation with attached policies.
+- Lambda function deployment supporting zip file or container image.
+- Lambda Layers management.
+- CloudWatch alarms for monitoring Lambda functions.
 
-No providers.
+Modules can be used independently or combined as needed.
 
-## Modules
 
-No modules.
+---
 
-## Resources
+## Resources Created and Managed
 
-No resources.
+- IAM roles for Lambda execution
+- AWS Lambda functions with runtime, handler, and deployment config
+- Event source triggers (S3, SNS, SQS, ALB, CloudWatch)
+- Lambda Layers for shared dependencies
+- CloudWatch alarms for Lambda metrics
 
-## Inputs
+---
 
-No inputs.
+## Example Usage
 
-## Outputs
+```hcl
+module "iam_role" {
+  source = "./modules/role"
+  name   = "lambda-basic-role"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "logs:*"
+        Effect = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}
 
-No outputs.
-<!-- END_TF_DOCS -->
-
-## Authors
-
-Module managed by [TO THE NEW Pvt. Ltd.](https://github.com/tothenew)
-
-## License
-
-Apache 2 Licensed. See [LICENSE](https://github.com/tothenew/terraform-aws-lambda/blob/main/LICENSE) for full details.
+module "lambda_function" {
+  source      = "./modules/lambda_functions"
+  lambda_name = "basic_lambda"
+  role_arn    = module.iam_role.role_arn
+  filename    = "basic_lambda.zip"
+  handler     = "index.handler"
+  runtime     = "python3.8"
+}
